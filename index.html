@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>قنوات البث المباشر</title>
+  <meta name="referrer" content="origin-when-cross-origin" />
+  <title>بث مباشر - صلاح الدين</title>
   <style>
     :root {
       --bg-color: #0b0f17;
@@ -35,11 +36,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-      gap: 14px;
+      padding: 14px;
+      gap: 12px;
     }
 
-    .top-bar, .stage-card, .channels-panel {
+    .top-bar, .player-card, .channels-panel {
       width: 100%;
       max-width: 960px;
       background: var(--card-bg);
@@ -51,7 +52,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 16px;
+      padding: 10px 14px;
     }
 
     .brand-btn {
@@ -87,41 +88,45 @@
       font-weight: 700;
     }
 
-    .stage-card {
-      padding: 24px 18px;
-      text-align: center;
+    .player-card {
+      overflow: hidden;
+    }
+
+    .player-box {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #000;
+    }
+
+    .player-box iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .player-actions {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
-    }
-
-    .stage-title {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 800;
-    }
-
-    .stage-note {
-      margin: 0;
-      font-size: 13px;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
       color: var(--text-muted);
-      max-width: 560px;
-      line-height: 1.6;
     }
 
-    .launch-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+    .action-btn {
       background: var(--accent);
       color: #06101d;
       text-decoration: none;
       font-weight: 800;
-      font-size: 14px;
-      padding: 12px 22px;
-      border-radius: 12px;
+      font-size: 12px;
+      padding: 8px 14px;
+      border-radius: 10px;
       border: none;
       cursor: pointer;
     }
@@ -170,14 +175,24 @@
       <div class="badge" id="currentBadge">NAT GEO AD</div>
     </div>
 
-    <div class="stage-card">
-      <h2 class="stage-title" id="stageTitle">NAT GEO AD</h2>
-      <p class="stage-note">
-        اضغط على زر التشغيل لفتح القناة مباشرة في نفس الصفحة داخل WebView.
-      </p>
-      <a class="launch-btn" id="launchLink" href="https://www.elahmad.ru/tv/radiant.php?id=natgeo_1" target="_self">
-        تشغيل القناة الآن
-      </a>
+    <div class="player-card">
+      <div class="player-box">
+        <iframe
+          id="tvFrame"
+          src="https://www.elahmad.ru/tv/radiant.php?id=natgeo_1"
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
+          allowfullscreen
+          webkitallowfullscreen
+          mozallowfullscreen
+          referrerpolicy="origin-when-cross-origin"
+        ></iframe>
+      </div>
+      <div class="player-actions">
+        <span id="statusHint">إذا لم يظهر الفيديو داخل الإطار بسبب حماية المصدر، اضغط على زر التشغيل الكامل.</span>
+        <a class="action-btn" id="directOpenBtn" href="https://www.elahmad.ru/tv/radiant.php?id=natgeo_1" target="_self">
+          تشغيل بملء الصفحة
+        </a>
+      </div>
     </div>
 
     <div class="channels-panel" id="channelsPanel">
@@ -207,9 +222,9 @@
     ];
 
     let bgIndex = 0;
+    const tvFrame = document.getElementById("tvFrame");
+    const directOpenBtn = document.getElementById("directOpenBtn");
     const currentBadge = document.getElementById("currentBadge");
-    const stageTitle = document.getElementById("stageTitle");
-    const launchLink = document.getElementById("launchLink");
     const channelsGrid = document.getElementById("channelsGrid");
     const channelsPanel = document.getElementById("channelsPanel");
     const logoMenuBtn = document.getElementById("logoMenuBtn");
@@ -218,9 +233,9 @@
     function selectChannel(index, btnEl) {
       const ch = channels[index];
       if (!ch) return;
+      tvFrame.src = ch.url;
+      directOpenBtn.href = ch.url;
       currentBadge.textContent = ch.name;
-      stageTitle.textContent = ch.name;
-      launchLink.href = ch.url;
       document.querySelectorAll(".channel-btn").forEach((b) => b.classList.remove("active"));
       if (btnEl) btnEl.classList.add("active");
     }
