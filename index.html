@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="referrer" content="origin-when-cross-origin" />
-  <title>بث مباشر - صلاح الدين</title>
+  <meta name="referrer" content="no-referrer" />
+  <title>salahbn - بث مباشر</title>
   <style>
     :root {
       --bg-color: #0b0f17;
@@ -63,19 +63,20 @@
       border: none;
       color: var(--text-main);
       font-size: 16px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
     }
 
     .brand-logo {
-      width: 34px;
-      height: 34px;
+      padding: 6px 10px;
       border-radius: 10px;
       background: linear-gradient(135deg, var(--accent), #2563eb);
       display: grid;
       place-items: center;
       font-weight: 800;
       color: #fff;
+      font-size: 13px;
+      letter-spacing: 0.4px;
     }
 
     .badge {
@@ -90,6 +91,21 @@
 
     .player-card {
       overflow: hidden;
+    }
+
+    .player-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .source-tag {
+      color: var(--accent);
+      font-weight: 800;
     }
 
     .player-box {
@@ -119,6 +135,12 @@
       color: var(--text-muted);
     }
 
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .action-btn {
       background: var(--accent);
       color: #06101d;
@@ -129,6 +151,12 @@
       border-radius: 10px;
       border: none;
       cursor: pointer;
+    }
+
+    .secondary-btn {
+      background: rgba(148, 163, 184, 0.14);
+      color: var(--text-main);
+      border: 1px solid var(--border);
     }
 
     .channels-panel {
@@ -169,29 +197,38 @@
   <div class="app-wrapper" id="appWrapper">
     <div class="top-bar">
       <button type="button" class="brand-btn" id="logoMenuBtn">
-        <span class="brand-logo">TV</span>
+        <span class="brand-logo">salahbn</span>
         <span>بث مباشر</span>
       </button>
-      <div class="badge" id="currentBadge">NAT GEO AD</div>
+      <div class="badge" id="currentBadge">BEIN2</div>
     </div>
 
     <div class="player-card">
+      <div class="player-header">
+        <span>منصة <span class="source-tag">salahbn</span></span>
+        <span id="channelLabel">BEIN2</span>
+      </div>
+
       <div class="player-box">
         <iframe
           id="tvFrame"
-          src="https://www.elahmad.ru/tv/radiant.php?id=natgeo_1"
+          src="https://channel.aflam4you.net/playeraf.php?vid=2&aflam_s=1&aflam_k=forex121"
           allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
           allowfullscreen
           webkitallowfullscreen
           mozallowfullscreen
-          referrerpolicy="origin-when-cross-origin"
+          referrerpolicy="no-referrer"
         ></iframe>
       </div>
+
       <div class="player-actions">
-        <span id="statusHint">إذا لم يظهر الفيديو داخل الإطار بسبب حماية المصدر، اضغط على زر التشغيل الكامل.</span>
-        <a class="action-btn" id="directOpenBtn" href="https://www.elahmad.ru/tv/radiant.php?id=natgeo_1" target="_self">
-          تشغيل بملء الصفحة
-        </a>
+        <span>إذا حجب الخادم الإطار الداخلي، يمكنك إعادة تحميله أو فتح البث في نفس الصفحة.</span>
+        <div class="btn-group">
+          <button type="button" class="action-btn secondary-btn" id="reloadFrameBtn">إعادة تحميل الإطار</button>
+          <a class="action-btn" id="directOpenBtn" href="https://channel.aflam4you.net/playeraf.php?vid=2&aflam_s=1&aflam_k=forex121" target="_self">
+            فتح البث المباشر
+          </a>
+        </div>
       </div>
     </div>
 
@@ -199,7 +236,7 @@
       <div class="channels-grid" id="channelsGrid"></div>
     </div>
 
-    <div class="hint-text">انقر على المساحة الفارغة لتغيير الخلفية، أو اضغط على الشعار لإخفاء/إظهار القنوات</div>
+    <div class="hint-text">انقر على المساحة الفارغة لتغيير الخلفية، أو اضغط على salahbn لإخفاء/إظهار القنوات</div>
   </div>
 
   <script>
@@ -224,7 +261,9 @@
     let bgIndex = 0;
     const tvFrame = document.getElementById("tvFrame");
     const directOpenBtn = document.getElementById("directOpenBtn");
+    const reloadFrameBtn = document.getElementById("reloadFrameBtn");
     const currentBadge = document.getElementById("currentBadge");
+    const channelLabel = document.getElementById("channelLabel");
     const channelsGrid = document.getElementById("channelsGrid");
     const channelsPanel = document.getElementById("channelsPanel");
     const logoMenuBtn = document.getElementById("logoMenuBtn");
@@ -236,6 +275,7 @@
       tvFrame.src = ch.url;
       directOpenBtn.href = ch.url;
       currentBadge.textContent = ch.name;
+      channelLabel.textContent = ch.name;
       document.querySelectorAll(".channel-btn").forEach((b) => b.classList.remove("active"));
       if (btnEl) btnEl.classList.add("active");
     }
@@ -243,13 +283,21 @@
     channels.forEach((ch, idx) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "channel-btn" + (idx === 0 ? " active" : "");
+      btn.className = "channel-btn" + (ch.name === "BEIN2" ? " active" : "");
       btn.textContent = ch.name;
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         selectChannel(idx, btn);
       });
       channelsGrid.appendChild(btn);
+    });
+
+    reloadFrameBtn.addEventListener("click", () => {
+      const currentSrc = tvFrame.src;
+      tvFrame.src = "";
+      requestAnimationFrame(() => {
+        tvFrame.src = currentSrc;
+      });
     });
 
     logoMenuBtn.addEventListener("click", (e) => {
