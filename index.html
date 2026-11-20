@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="referrer" content="no-referrer-when-downgrade" />
   <title>قنوات البث المباشر</title>
   <style>
     :root {
       --bg-color: #0b0f17;
-      --card-bg: rgba(20, 27, 41, 0.92);
+      --card-bg: rgba(20, 27, 41, 0.94);
       --accent: #38bdf8;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
@@ -40,17 +39,19 @@
       gap: 14px;
     }
 
-    .top-bar {
+    .top-bar, .stage-card, .channels-panel {
       width: 100%;
       max-width: 960px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
       padding: 10px 16px;
-      backdrop-filter: blur(10px);
     }
 
     .brand-btn {
@@ -63,8 +64,6 @@
       font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      padding: 4px 8px;
-      border-radius: 10px;
     }
 
     .brand-logo {
@@ -76,10 +75,9 @@
       place-items: center;
       font-weight: 800;
       color: #fff;
-      font-size: 15px;
     }
 
-    .current-channel-badge {
+    .badge {
       background: rgba(56, 189, 248, 0.14);
       color: var(--accent);
       border: 1px solid rgba(56, 189, 248, 0.35);
@@ -89,44 +87,52 @@
       font-weight: 700;
     }
 
-    .player-card {
-      width: 100%;
-      max-width: 960px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    .stage-card {
+      padding: 24px 18px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
     }
 
-    .player-box {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background: #000;
+    .stage-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 800;
     }
 
-    .player-box iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
+    .stage-note {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    .launch-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #06101d;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px 22px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
     }
 
     .channels-panel {
-      width: 100%;
-      max-width: 960px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 18px;
       padding: 14px;
-      backdrop-filter: blur(10px);
     }
 
     .channels-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
       gap: 10px;
     }
 
@@ -139,13 +145,6 @@
       font-size: 13px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: center;
-    }
-
-    .channel-btn:hover {
-      border-color: var(--accent);
-      transform: translateY(-1px);
     }
 
     .channel-btn.active {
@@ -163,31 +162,29 @@
 </head>
 <body>
   <div class="app-wrapper" id="appWrapper">
-    <div class="top-bar" id="topBar">
-      <button type="button" class="brand-btn" id="logoMenuBtn" title="تبديل عرض قائمة القنوات">
+    <div class="top-bar">
+      <button type="button" class="brand-btn" id="logoMenuBtn">
         <span class="brand-logo">TV</span>
         <span>بث مباشر</span>
       </button>
-      <div class="current-channel-badge" id="currentChannelName">NAT GEO AD</div>
+      <div class="badge" id="currentBadge">NAT GEO AD</div>
     </div>
 
-    <div class="player-card" id="playerCard">
-      <div class="player-box">
-        <iframe
-          id="tvFrame"
-          src="https://www.elahmad.ru/tv/radiant.php?id=natgeo_1"
-          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-          allowfullscreen
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
-      </div>
+    <div class="stage-card">
+      <h2 class="stage-title" id="stageTitle">NAT GEO AD</h2>
+      <p class="stage-note">
+        اضغط على زر التشغيل لفتح القناة مباشرة في نفس الصفحة داخل WebView.
+      </p>
+      <a class="launch-btn" id="launchLink" href="https://www.elahmad.ru/tv/radiant.php?id=natgeo_1" target="_self">
+        تشغيل القناة الآن
+      </a>
     </div>
 
     <div class="channels-panel" id="channelsPanel">
       <div class="channels-grid" id="channelsGrid"></div>
     </div>
 
-    <div class="hint-text">انقر على المساحة الفارغة لتغيير الخلفية، أو اضغط على الشعار لإظهار/إخفاء القنوات</div>
+    <div class="hint-text">انقر على المساحة الفارغة لتغيير الخلفية، أو اضغط على الشعار لإخفاء/إظهار القنوات</div>
   </div>
 
   <script>
@@ -210,21 +207,22 @@
     ];
 
     let bgIndex = 0;
-    const tvFrame = document.getElementById("tvFrame");
-    const currentChannelName = document.getElementById("currentChannelName");
+    const currentBadge = document.getElementById("currentBadge");
+    const stageTitle = document.getElementById("stageTitle");
+    const launchLink = document.getElementById("launchLink");
     const channelsGrid = document.getElementById("channelsGrid");
     const channelsPanel = document.getElementById("channelsPanel");
     const logoMenuBtn = document.getElementById("logoMenuBtn");
     const appWrapper = document.getElementById("appWrapper");
 
-    function selectChannel(index, btnElement) {
+    function selectChannel(index, btnEl) {
       const ch = channels[index];
       if (!ch) return;
-      tvFrame.src = ch.url;
-      currentChannelName.textContent = ch.name;
-
-      document.querySelectorAll(".channel-btn").forEach((el) => el.classList.remove("active"));
-      if (btnElement) btnElement.classList.add("active");
+      currentBadge.textContent = ch.name;
+      stageTitle.textContent = ch.name;
+      launchLink.href = ch.url;
+      document.querySelectorAll(".channel-btn").forEach((b) => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
     }
 
     channels.forEach((ch, idx) => {
@@ -241,8 +239,7 @@
 
     logoMenuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isHidden = channelsPanel.style.display === "none";
-      channelsPanel.style.display = isHidden ? "block" : "none";
+      channelsPanel.style.display = channelsPanel.style.display === "none" ? "block" : "none";
     });
 
     appWrapper.addEventListener("click", (e) => {
